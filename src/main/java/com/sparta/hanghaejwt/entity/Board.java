@@ -19,8 +19,9 @@ public class Board extends Timestamped {
 
     // 가입 정보와 게시판 정보가 함께 저장 되어야 하기 때문에
     // join 사용
+    // uer_id 통해 Board 와 User 가 연관 됨을 명시
     @JsonIgnore
-    @JoinColumn(name = "username")
+    @JoinColumn(name = "user_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
@@ -35,25 +36,19 @@ public class Board extends Timestamped {
 //    @Column(nullable = false)
 //    private String password;
 
-    //    @Column(nullable = false)
-//    private String username;
+//    @Column(nullable = false)
+    private String username;
 
 
     public Board(BoardRequestDto requestDto, User user){
         this.contents = requestDto.getContent();
         this.title = requestDto.getTitle();
         this.user = user;
-//        this.password = requestDto.getPassword();
-//        this.username = requestDto.getUsername();
-
+//        this.username = user.getUsername();
     }
-
 
     public void update(BoardRequestDto requestDto) {
         this.contents = requestDto.getContent();
         this.title = requestDto.getTitle();
-//        this.username = requestDto.getUsername();
     }
-
-
 }

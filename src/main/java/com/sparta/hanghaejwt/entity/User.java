@@ -11,8 +11,9 @@ import javax.persistence.*;
 @Entity(name = "users")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id//PK
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // 자동으로 식별자 값 유저를 만들때마다 ++해주니까 null && 중복 없음
+    @Column(name = "user_id")
     private Long id;
 
     // nullable = true : null 허용
@@ -22,10 +23,6 @@ public class User {
 
     @Column(nullable = false)
     private String password;
-
-//    @Column(nullable = false)
-//    @Enumerated(value = EnumType.STRING)
-//    private UserRoleEnum role;
 
     public User(String username, String password) {
         this.username = username;

@@ -1,6 +1,7 @@
 package com.sparta.hanghaejwt.dto;
 
 import lombok.*;
+
 // 회원가입, 로그인 시 성공할 경우 메세지와 상태 코드 반환해주는 Dto
 // 제네릭을 이용하여 공통 응답 API 만들어 보기 :)
 
@@ -23,4 +24,9 @@ public class UserResponseDto {
     public static UserResponseDto setLogin() {
         return new UserResponseDto(200, "로그인 성공");
     }
+
 }
+
+
+// ResponseEntity<>(body : "회원가입 성공", HttpStatus.CREATED) : 상태 코드와 메세지
+

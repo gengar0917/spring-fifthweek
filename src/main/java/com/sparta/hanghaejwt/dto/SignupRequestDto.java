@@ -14,7 +14,7 @@ public class SignupRequestDto {
     @NotNull
     @Size(min = 4, max = 10)
     @Pattern(regexp = "(?=.*[0-9])(?=.*[a-z]).{4,10}",
-    message = "비밀번호는 8~16자 영문 대 소문자, 숫자를 사용하세요.")
+    message = "아이디 4~10자 영문 소문자, 숫자를 사용하세요.")
     private String username;
     @NotNull
     @Size(min = 8, max = 15)

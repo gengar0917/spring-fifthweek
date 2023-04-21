@@ -44,13 +44,13 @@ public class BoardController {
 
     // 게시물 수정  = post + get(게시물하나보기)
     @PutMapping("/update/{id}")
-    public BoardResponseDto updateBoard(@PathVariable Long id, @RequestBody BoardRequestDto requestDto) {
-        return boardService.updateBoard(id, requestDto);
+    public BoardResponseDto updateBoard(@PathVariable Long id, @RequestBody BoardRequestDto requestDto, HttpServletRequest request) {
+        return boardService.updateBoard(id, requestDto,request);
     }
 
     //게시물 삭제
     @DeleteMapping("/delete/{id}")
-    public deleteDto deleteBoard(@PathVariable Long id, @RequestBody BoardRequestDto requestDto) {
-        return boardService.deleteBoard(id, requestDto);
+    public deleteDto deleteBoard(@PathVariable Long id, HttpServletRequest request) {
+        return boardService.deleteBoard(id, request);
     }
 }

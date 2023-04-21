@@ -3,6 +3,7 @@ package com.sparta.hanghaejwt.service;
 
 import com.sparta.hanghaejwt.dto.BoardRequestDto;
 import com.sparta.hanghaejwt.dto.BoardResponseDto;
+import com.sparta.hanghaejwt.dto.UserResponseDto;
 import com.sparta.hanghaejwt.dto.deleteDto;
 import com.sparta.hanghaejwt.entity.Board;
 import com.sparta.hanghaejwt.entity.User;
@@ -29,11 +30,27 @@ public class BoardService {
     // 게시물 저장
     // 토큰 있는지 확인 후 저장
     public BoardResponseDto createBoard(BoardRequestDto requestDto, HttpServletRequest request) {
-        Board board = new Board(requestDto, user);
-        User checkUser = checkUser(request);
-        if (checkUser == null) {
-            throw new IllegalArgumentException("로그인이 필요합니다");
+        String token = jwtUtil.resolveToken(request);
+        Claims claims;
+        // 토큰이 없는 경우
+        if (token == null) {
+            throw new IllegalArgumentException("토큰 없음");
         }
+
+        // 토큰이 있는 경우만
+        // 유효한 토큰인지 확인
+        if (jwtUtil.validateToken(token)) {
+            // 토큰에서 사용자 정보 가져오기
+            claims = jwtUtil.getUserInfoFromToken(token);
+        } else {
+            throw new IllegalArgumentException("Token Error");
+        }
+
+        // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회하여 사용자 존재 유무 확인
+        User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
+                () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
+        );
+        Board board = new Board(requestDto, user);
         boardRepository.save(board);
 
         return new BoardResponseDto(board);
@@ -45,7 +62,7 @@ public class BoardService {
         // 테이블에 저장 되어 있는 모든 게시물 목록 조회
         List<Board> boardList = boardRepository.findAllByOrderByCreatedAtDesc();
         // DB 에서 가져온 것
-        return boardList.stream().map(BoardResponseDto::from).collect(Collectors.toList());
+        return boardList.stream().map(BoardResponseDto::new).collect(Collectors.toList());
     }
 
     // 게시물 하나만 보기
@@ -57,29 +74,29 @@ public class BoardService {
     }
 
     // 유저의 토큰 검사 (유효한가? 변형되지 않았는가? 사용자 존재한가?)
-    @Transactional
-    public User checkUser(HttpServletRequest request) {
-        String token = jwtUtil.resolveToken(request);
-        Claims claims;
-
-        // 토큰이 있는 경우만
-        if (token != null) {
-            // 유효한 토큰인지 확인
-            if (jwtUtil.validateToken(token)) {
-                // 토큰에서 사용자 정보 가져오기
-                claims = jwtUtil.getUserInfoFromToken(token);
-            } else {
-                throw new IllegalArgumentException("Token Error");
-            }
-
-            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회하여 사용자 존재 유무 확인
-            return userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
-            );
-
-        }
-        return null;
-    }
+//    @Transactional
+//    public User checkUser(HttpServletRequest request) {
+//        String token = jwtUtil.resolveToken(request);
+//        Claims claims;
+//
+//        // 토큰이 있는 경우만
+//        if (token != null) {
+//            // 유효한 토큰인지 확인
+//            if (jwtUtil.validateToken(token)) {
+//                // 토큰에서 사용자 정보 가져오기
+//                claims = jwtUtil.getUserInfoFromToken(token);
+//            } else {
+//                throw new IllegalArgumentException("Token Error");
+//            }
+//
+//            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회하여 사용자 존재 유무 확인
+//            return userRepository.findByUsername(claims.getSubject()).orElseThrow(
+//                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
+//            );
+//
+//        }
+//        return null;
+//    }
 
     // 게시물 일치 확인
     private Board checkBoard(Long id) {
@@ -96,26 +113,69 @@ public class BoardService {
         // 게시물의 id 가 같은지 확인
         Board board = checkBoard(id);
         // 토큰 유효 검사 + 게시물 존재 확인
-        User checkUser = checkUser(request);
-
-        // 사용자가 같은지 확인
-        if (!requestDto.getUsername().equals(board.getUser().getUsername())) {
-            throw new IllegalArgumentException("사용자가 다릅니다.");
+        String token = jwtUtil.resolveToken(request);
+        Claims claims;
+        // 토큰이 없는 경우
+        if (token == null) {
+            throw new IllegalArgumentException("토큰 없음");
         }
-        board.update(requestDto);
+
+        // 토큰이 있는 경우만
+        // 유효한 토큰인지 확인
+        if (jwtUtil.validateToken(token)) {
+            // 토큰에서 사용자 정보 가져오기
+            claims = jwtUtil.getUserInfoFromToken(token);
+        } else {
+            throw new IllegalArgumentException("Token Error");
+        }
+
+        // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회하여 사용자 존재 유무 확인
+        User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
+                () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
+        );
+
+        // 게시물 username 과 사용자 username 이 같으면?
+        if (board.getUsername().equals(user.getUsername())) {
+            board.update(requestDto);
+        } else {
+            throw new IllegalArgumentException("username 이 다릅니다");
+        }
 
         return new BoardResponseDto(board);
     }
 
     //게시물 삭제
-    public deleteDto deleteBoard(Long id, BoardRequestDto requestDto) {
-        // 삭제하기 위해 받아온 board 의 id 를 사용하여 해당 board 인스턴스가 존재하는지 확인 후 가져오기
+    public deleteDto deleteBoard(Long id, HttpServletRequest request) {
+        // 게시물 id 선택 및 존재 여부 확인
         Board board = checkBoard(id);
-        if (!requestDto.getPassword().equals(board.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
-        boardRepository.delete(board);
 
+        // 토큰 유효 검사 + 게시물 존재 확인
+        String token = jwtUtil.resolveToken(request);
+        Claims claims;
+        // 토큰이 없는 경우
+        if (token == null) {
+            throw new IllegalArgumentException("토큰 없음");
+        }
+
+        // 토큰이 있는 경우만
+        // 유효한 토큰인지 확인
+        if (jwtUtil.validateToken(token)) {
+            // 토큰에서 사용자 정보 가져오기
+            claims = jwtUtil.getUserInfoFromToken(token);
+        } else {
+            throw new IllegalArgumentException("Token Error");
+        }
+
+        // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회하여 사용자 존재 유무 확인
+        User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
+                () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
+        );
+        // 게시물 username 과 사용자 username 이 같으면?
+        if (board.getUsername().equals(user.getUsername())) {
+            boardRepository.delete(board);
+        } else {
+            throw new IllegalArgumentException("username 이 다릅니다");
+        }
         return new deleteDto();
     }
 }
