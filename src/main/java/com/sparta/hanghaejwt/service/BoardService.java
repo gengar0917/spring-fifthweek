@@ -5,53 +5,83 @@ import com.sparta.hanghaejwt.dto.BoardRequestDto;
 import com.sparta.hanghaejwt.dto.BoardResponseDto;
 import com.sparta.hanghaejwt.dto.deleteDto;
 import com.sparta.hanghaejwt.entity.Board;
+import com.sparta.hanghaejwt.entity.User;
+import com.sparta.hanghaejwt.jwt.JwtUtil;
 import com.sparta.hanghaejwt.repository.BoardRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.sparta.hanghaejwt.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class BoardService {
 
     private final BoardRepository boardRepository;
-
-    @Autowired
-    public BoardService(BoardRepository boardRepository) {
-        this.boardRepository = boardRepository;
-    }
+    private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
 
     // 게시물 저장
-    public BoardResponseDto createBoard(BoardRequestDto requestDto) {
-        // 브라우저에서 받아온 데이터 저장하기 위해서 Board 객체로 변환 - 그래서 리턴을 board 로 (BoardRepository 가 받아간다)
-        Board board = new Board(requestDto);
+    // 토큰 있는지 확인 후 저장
+    public BoardResponseDto createBoard(BoardRequestDto requestDto, HttpServletRequest request) {
+        Board board = new Board(requestDto, user);
+        User checkUser = checkUser(request);
+        if (checkUser == null) {
+            throw new IllegalArgumentException("로그인이 필요합니다");
+        }
         boardRepository.save(board);
 
         return new BoardResponseDto(board);
     }
 
     // 게시물 전체 보기 : stream
+    // 토큰 필요 없음
     public List<BoardResponseDto> getBoardList() {  // 데이터 베이스에 저장 된 전체 게시물 전부다 가져오는 API
         // 테이블에 저장 되어 있는 모든 게시물 목록 조회
         List<Board> boardList = boardRepository.findAllByOrderByCreatedAtDesc();
         // DB 에서 가져온 것
-
-        // list board to list boardResponseDto
-//        List<BoardResponseDto> responseDtoList = boardList.stream().map(BoardResponseDto::from).collect(Collectors.toList());
-
         return boardList.stream().map(BoardResponseDto::from).collect(Collectors.toList());
     }
 
     // 게시물 하나만 보기
+    // 토큰 필요 없음
     public BoardResponseDto getBoard(Long id) { // 똑같은 id 를 갖고 있는 것을 가져올 것
-        // 조회하기 위해 받아온 course 의 id 를 사용하여 해당 course 인스턴스가 테이블에 존재하는지 확인하고 가져오기
         Board board = checkBoard(id);
 
         return new BoardResponseDto(board);
     }
 
+    // 유저의 토큰 검사 (유효한가? 변형되지 않았는가? 사용자 존재한가?)
+    @Transactional
+    public User checkUser(HttpServletRequest request) {
+        String token = jwtUtil.resolveToken(request);
+        Claims claims;
+
+        // 토큰이 있는 경우만
+        if (token != null) {
+            // 유효한 토큰인지 확인
+            if (jwtUtil.validateToken(token)) {
+                // 토큰에서 사용자 정보 가져오기
+                claims = jwtUtil.getUserInfoFromToken(token);
+            } else {
+                throw new IllegalArgumentException("Token Error");
+            }
+
+            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회하여 사용자 존재 유무 확인
+            return userRepository.findByUsername(claims.getSubject()).orElseThrow(
+                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
+            );
+
+        }
+        return null;
+    }
+
+    // 게시물 일치 확인
     private Board checkBoard(Long id) {
         return boardRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("선택한 게시물이 존재하지 않습니다.")
@@ -59,12 +89,18 @@ public class BoardService {
     }
 
     // 게시물 수정  = post + get(게시물하나보기)
+    // 게시물 일치 확인 + 토큰 유효 확인
+    // 둘다 해당되면 사용자가 작성한 게시글만 수정 가능
     @Transactional
-    public BoardResponseDto updateBoard(Long id, BoardRequestDto requestDto) {
-        // 수정하기 위해 받아온 board 의 id 를 사용하여 해당 board 인스턴스가 존재하는지 확인 후 가져오기
+    public BoardResponseDto updateBoard(Long id, BoardRequestDto requestDto, HttpServletRequest request) {
+        // 게시물의 id 가 같은지 확인
         Board board = checkBoard(id);
-        if (!requestDto.getPassword().equals(board.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        // 토큰 유효 검사 + 게시물 존재 확인
+        User checkUser = checkUser(request);
+
+        // 사용자가 같은지 확인
+        if (!requestDto.getUsername().equals(board.getUser().getUsername())) {
+            throw new IllegalArgumentException("사용자가 다릅니다.");
         }
         board.update(requestDto);
 

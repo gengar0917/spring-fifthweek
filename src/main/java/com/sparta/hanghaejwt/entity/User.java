@@ -1,12 +1,10 @@
 package com.sparta.hanghaejwt.entity;
 
-import com.sun.istack.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+
 
 @Getter
 @NoArgsConstructor
@@ -17,16 +15,22 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
+    // nullable = true : null 허용
+    // unique = false : 중복 허용
     @Column(nullable = false, unique = true)
     private String username;
-
 
     @Column(nullable = false)
     private String password;
 
-    public User(String username, String password){
+//    @Column(nullable = false)
+//    @Enumerated(value = EnumType.STRING)
+//    private UserRoleEnum role;
+
+    public User(String username, String password) {
         this.username = username;
         this.password = password;
+//        this.role = role;
     }
+
 }

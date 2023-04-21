@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 // 프론트에 전달할 때 API 반환 값은 Json Object(key, value)로 보내는 것이 좋다.
@@ -30,7 +31,10 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public UserResponseDto login(@RequestBody LoginRequestDto loginRequestDto){
-        return userService.login(loginRequestDto);
+    public UserResponseDto login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response){
+        return userService.login(loginRequestDto, response);
     }
 }
+
+
+// HttpServletResponse : server 가 client 로 반환할 때 response Header 에 만든 Token 넣기 위해 사용
