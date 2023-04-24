@@ -51,9 +51,8 @@ public class BoardService {
                 () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
         );
         Board board = new Board(requestDto, user);
-        boardRepository.save(board);
 
-        return new BoardResponseDto(board);
+        return new BoardResponseDto(boardRepository.save(board));
     }
 
     // 게시물 전체 보기 : stream

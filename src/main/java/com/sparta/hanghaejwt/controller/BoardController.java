@@ -5,24 +5,21 @@ import com.sparta.hanghaejwt.dto.BoardRequestDto;
 import com.sparta.hanghaejwt.dto.BoardResponseDto;
 import com.sparta.hanghaejwt.dto.UserResponseDto;
 import com.sparta.hanghaejwt.service.BoardService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/board")
 public class BoardController {
 
     private final BoardService boardService;
 
-    @Autowired
-    public BoardController(BoardService boardService) {
-        this.boardService = boardService;
-    }
-
     // 게시물 저장
+    //
     @PostMapping("/create")  // post 는 body 가 있음
     public BoardResponseDto createBoard(@RequestBody BoardRequestDto requestDto, HttpServletRequest request) {
 //        BoardService boardService = new BoardService();  // 다른 클래스의 메소드를 부르기 위해서 인스턴스 생성 -> 각 메소드에 넣으면 여러번 해야하기 때문에 전역에 놓으면 된다.
