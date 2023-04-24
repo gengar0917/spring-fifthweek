@@ -4,9 +4,9 @@ package com.sparta.hanghaejwt.service;
 import com.sparta.hanghaejwt.dto.BoardRequestDto;
 import com.sparta.hanghaejwt.dto.BoardResponseDto;
 import com.sparta.hanghaejwt.dto.UserResponseDto;
-import com.sparta.hanghaejwt.dto.deleteDto;
 import com.sparta.hanghaejwt.entity.Board;
 import com.sparta.hanghaejwt.entity.User;
+import com.sparta.hanghaejwt.entity.UserRoleEnum;
 import com.sparta.hanghaejwt.jwt.JwtUtil;
 import com.sparta.hanghaejwt.repository.BoardRepository;
 import com.sparta.hanghaejwt.repository.UserRepository;
@@ -73,31 +73,6 @@ public class BoardService {
         return new BoardResponseDto(board);
     }
 
-    // 유저의 토큰 검사 (유효한가? 변형되지 않았는가? 사용자 존재한가?)
-//    @Transactional
-//    public User checkUser(HttpServletRequest request) {
-//        String token = jwtUtil.resolveToken(request);
-//        Claims claims;
-//
-//        // 토큰이 있는 경우만
-//        if (token != null) {
-//            // 유효한 토큰인지 확인
-//            if (jwtUtil.validateToken(token)) {
-//                // 토큰에서 사용자 정보 가져오기
-//                claims = jwtUtil.getUserInfoFromToken(token);
-//            } else {
-//                throw new IllegalArgumentException("Token Error");
-//            }
-//
-//            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회하여 사용자 존재 유무 확인
-//            return userRepository.findByUsername(claims.getSubject()).orElseThrow(
-//                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
-//            );
-//
-//        }
-//        return null;
-//    }
-
     // 게시물 일치 확인
     private Board checkBoard(Long id) {
         return boardRepository.findById(id).orElseThrow(
@@ -134,18 +109,17 @@ public class BoardService {
                 () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
         );
 
-        // 게시물 username 과 사용자 username 이 같으면?
-        if (board.getUsername().equals(user.getUsername())) {
+        // 사용자 이름이 같은 경우만 수정 가능
+        if (board.getUser().getUsername().equals(user.getUsername())) {
             board.update(requestDto);
         } else {
             throw new IllegalArgumentException("username 이 다릅니다");
         }
-
         return new BoardResponseDto(board);
     }
 
     //게시물 삭제
-    public deleteDto deleteBoard(Long id, HttpServletRequest request) {
+    public UserResponseDto deleteBoard(Long id, HttpServletRequest request) {
         // 게시물 id 선택 및 존재 여부 확인
         Board board = checkBoard(id);
 
@@ -170,13 +144,20 @@ public class BoardService {
         User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
                 () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
         );
-        // 게시물 username 과 사용자 username 이 같으면?
-        if (board.getUsername().equals(user.getUsername())) {
+        // 사용자 권한 확인하여 ADMIN 이면 아무 게시글이나 삭제 가능, USER 면 본인 글만 삭제 가능
+        UserRoleEnum userRoleEnum = user.getRole();
+
+        if (board.getUser().getRole().equals(user.getRole())) {
+            // 사용자 권한이 ADMIN 인 경우
             boardRepository.delete(board);
         } else {
-            throw new IllegalArgumentException("username 이 다릅니다");
+            if (board.getUser().getUsername().equals(user.getUsername())) {
+                boardRepository.delete(board);
+            } else {
+                throw new IllegalArgumentException("username 이 다릅니다");
+            }
         }
-        return new deleteDto();
+        return UserResponseDto.deleteDto();
     }
 }
 

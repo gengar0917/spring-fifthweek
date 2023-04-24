@@ -47,13 +47,13 @@ public class JwtUtil {
     }
 
     // String 형식의 토큰 생성
-    public String createToken(String username) {
+    public String createToken(String username, UserRoleEnum role) {
         Date date = new Date();
 
         return BEARER_PREFIX +
                 Jwts.builder()
                         .setSubject(username)
-//                        .claim(AUTHORIZATION_KEY, role)
+                        .claim(AUTHORIZATION_KEY, role)
                         .setExpiration(new Date(date.getTime() + TOKEN_TIME))  // 만료 시간
                         .setIssuedAt(date)  // 생성 날짜
                         .signWith(key, signatureAlgorithm)

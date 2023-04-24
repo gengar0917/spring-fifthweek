@@ -5,7 +5,6 @@ import com.sparta.hanghaejwt.dto.SignupRequestDto;
 import com.sparta.hanghaejwt.dto.UserResponseDto;
 import com.sparta.hanghaejwt.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -26,6 +25,10 @@ public class UserController {
     @PostMapping("/signup")
     public UserResponseDto signup(@RequestBody @Valid SignupRequestDto signupRequestDto) {
         return userService.signup(signupRequestDto);
+
+        // 이 방식을 이용하면 메세지와 응답 코드 모두 전달 가능
+        // return new ResponseEntity<>("회원가입 성공", HttpStatus.CREATED);
+
     }
 
 
@@ -38,3 +41,7 @@ public class UserController {
 
 
 // HttpServletResponse : server 가 client 로 반환할 때 response Header 에 만든 Token 넣기 위해 사용
+
+// HttpStatus 는 다양한 상태 코드 전달 가능
+// https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/http/HttpStatus.html
+// 여기서 확인

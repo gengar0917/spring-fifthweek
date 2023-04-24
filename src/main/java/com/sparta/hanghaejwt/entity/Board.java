@@ -33,18 +33,15 @@ public class Board extends Timestamped {
 
 //    @JsonIgnore  // 컨트롤러에서 리턴할 때 이 부분만 빼고 보내준다.
 //    // 또한 데이터 받아올 때에도 빼고 받아온다. -> 그래서 Dto 에도 password 필드 넣을 것
-//    @Column(nullable = false)
-//    private String password;
 
 //    @Column(nullable = false)
-    private String username;
+//    private String username;
 
 
     public Board(BoardRequestDto requestDto, User user){
         this.contents = requestDto.getContent();
         this.title = requestDto.getTitle();
         this.user = user;
-//        this.username = user.getUsername();
     }
 
     public void update(BoardRequestDto requestDto) {

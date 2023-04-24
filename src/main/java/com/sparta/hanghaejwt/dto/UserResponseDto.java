@@ -1,5 +1,6 @@
 package com.sparta.hanghaejwt.dto;
 
+import com.sparta.hanghaejwt.entity.UserRoleEnum;
 import lombok.*;
 
 // 회원가입, 로그인 시 성공할 경우 메세지와 상태 코드 반환해주는 Dto
@@ -25,6 +26,10 @@ public class UserResponseDto {
         return new UserResponseDto(200, "로그인 성공");
     }
 
+    // 게시물 삭제 성공시 상태 코드와 메세지 전달
+    public static UserResponseDto deleteDto(){
+        return new UserResponseDto(200, "삭제 완료");
+    }
 }
 
 

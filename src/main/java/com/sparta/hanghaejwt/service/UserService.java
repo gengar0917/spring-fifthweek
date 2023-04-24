@@ -34,16 +34,16 @@ public class UserService {
             throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
         }
 
-//        // 사용자 Role 확인
-//        UserRoleEnum role = UserRoleEnum.USER;
-//        if (signupRequestDto.isAdmin()) {
-//            if (!signupRequestDto.getAdminToken().equals(ADMIN_TOKEN)) {
-//                throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
-//            }
-//            role = UserRoleEnum.ADMIN;
-//        }
+        // 사용자 Role 확인
+        UserRoleEnum role = UserRoleEnum.USER;
+        if (signupRequestDto.isAdmin()) {
+            if (!signupRequestDto.getAdminToken().equals(ADMIN_TOKEN)) {
+                throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
+            }
+            role = UserRoleEnum.ADMIN;
+        }
 
-        User user = new User(username, password);
+        User user = new User(username, password, role);
         userRepository.save(user);
 
         return UserResponseDto.setSuccess();
@@ -69,7 +69,13 @@ public class UserService {
         }
 
         // addHeader : 헤더 쪽에 같이 넣어준다.
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername()));
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername(), user.getRole()));
         return UserResponseDto.setLogin();
     }
 }
+
+
+/*
+에러 처리 코드
+() -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "토큰이 유효하지 않습니다")
+ */

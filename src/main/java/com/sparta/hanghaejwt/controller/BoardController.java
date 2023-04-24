@@ -3,7 +3,7 @@ package com.sparta.hanghaejwt.controller;
 
 import com.sparta.hanghaejwt.dto.BoardRequestDto;
 import com.sparta.hanghaejwt.dto.BoardResponseDto;
-import com.sparta.hanghaejwt.dto.deleteDto;
+import com.sparta.hanghaejwt.dto.UserResponseDto;
 import com.sparta.hanghaejwt.service.BoardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -45,12 +45,12 @@ public class BoardController {
     // 게시물 수정  = post + get(게시물하나보기)
     @PutMapping("/update/{id}")
     public BoardResponseDto updateBoard(@PathVariable Long id, @RequestBody BoardRequestDto requestDto, HttpServletRequest request) {
-        return boardService.updateBoard(id, requestDto,request);
+        return boardService.updateBoard(id, requestDto, request);
     }
 
     //게시물 삭제
     @DeleteMapping("/delete/{id}")
-    public deleteDto deleteBoard(@PathVariable Long id, HttpServletRequest request) {
+    public UserResponseDto deleteBoard(@PathVariable Long id, HttpServletRequest request) {
         return boardService.deleteBoard(id, request);
     }
 }

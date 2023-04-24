@@ -22,7 +22,7 @@ public class SignupRequestDto {
     message = "비밀번호는 8~16자 영문 대 소문자, 숫자를 사용하세요.")
     private String password;
 
-//    private boolean admin = false;
-//    private String adminToken = "";
+    private boolean admin = false;
+    private String adminToken = "";
 
 }
