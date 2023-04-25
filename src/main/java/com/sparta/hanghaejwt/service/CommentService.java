@@ -49,7 +49,7 @@ public class CommentService {
         return new CommentResponseDto(commentRepository.save(comment));
     }
 
-    //댓글 수정
+    //댓글 수정 :)
     public CommentResponseDto updateComment(Long board_id, CommentRequestDto commentRequestDto, HttpServletRequest request){
 
     }
