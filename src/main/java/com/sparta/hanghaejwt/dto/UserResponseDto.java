@@ -30,7 +30,10 @@ public class UserResponseDto {
     public static UserResponseDto deleteDto(){
         return new UserResponseDto(200, "삭제 완료");
     }
+
+    public static UserResponseDto deleteComment() { return new UserResponseDto(200, "댓글 등록 성공"); }
 }
+
 
 
 // ResponseEntity<>(body : "회원가입 성공", HttpStatus.CREATED) : 상태 코드와 메세지
