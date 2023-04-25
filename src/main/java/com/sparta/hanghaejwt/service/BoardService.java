@@ -1,5 +1,5 @@
 package com.sparta.hanghaejwt.service;
-
+// 예외처리를 좀 더 깔끔하게 할 수 있는 방법은 없는가?
 
 import com.sparta.hanghaejwt.dto.BoardRequestDto;
 import com.sparta.hanghaejwt.dto.BoardResponseDto;
@@ -29,6 +29,9 @@ public class BoardService {
 
     // 게시물 저장
     // 토큰 있는지 확인 후 저장
+    // Controller 에서 들어온 requestDto(게시글요청 Dto) 와 request(http header 내용) 을 이용
+
+    // Claim : JSON Map 으로 어떤 값이든 붙일 수 있으나 JWT 표준이름은 getter 와 setter 제공
     public BoardResponseDto createBoard(BoardRequestDto requestDto, HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request);
         Claims claims;
@@ -73,6 +76,7 @@ public class BoardService {
     }
 
     // 게시물 일치 확인
+    // boardRepository 에서 id 를 찾고, 없으면 예외 처리
     private Board checkBoard(Long id) {
         return boardRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("선택한 게시물이 존재하지 않습니다.")
@@ -82,6 +86,9 @@ public class BoardService {
     // 게시물 수정  = post + get(게시물하나보기)
     // 게시물 일치 확인 + 토큰 유효 확인
     // 둘다 해당되면 사용자가 작성한 게시글만 수정 가능
+    // Transactional : 매서드 시작하면 트랜잭션 시작, 성공적으로 메소드가 끝나면 트랜잭션 커밋
+    // 중간에 문제가 발생하면 롤백
+    // 하나의 작업을 수행하는 서비스 계층 메서드에 붙이는 것이 통상적이다.
     @Transactional
     public BoardResponseDto updateBoard(Long id, BoardRequestDto requestDto, HttpServletRequest request) {
         // 게시물의 id 가 같은지 확인
@@ -143,19 +150,30 @@ public class BoardService {
         User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
                 () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
         );
+
         // 사용자 권한 확인하여 ADMIN 이면 아무 게시글이나 삭제 가능, USER 면 본인 글만 삭제 가능
         UserRoleEnum userRoleEnum = user.getRole();
 
-        if (board.getUser().getRole().equals(user.getRole())) {
-            // 사용자 권한이 ADMIN 인 경우
+        if (userRoleEnum == UserRoleEnum.ADMIN){
             boardRepository.delete(board);
         } else {
-            if (board.getUser().getUsername().equals(user.getUsername())) {
+            if (claims.getSubject().equals(board.getUser().getUsername())){
                 boardRepository.delete(board);
             } else {
                 throw new IllegalArgumentException("username 이 다릅니다");
             }
         }
+
+//        if (board.getUser().getRole().equals(user.getRole())) {
+//            // 사용자 권한이 ADMIN 인 경우
+//            boardRepository.delete(board);
+//        } else {
+//            if (board.getUser().getUsername().equals(user.getUsername())) {
+//                boardRepository.delete(board);
+//            } else {
+//                throw new IllegalArgumentException("username 이 다릅니다");
+//            }
+//        }
         return UserResponseDto.deleteDto();
     }
 }

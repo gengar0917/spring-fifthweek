@@ -5,6 +5,7 @@ import com.sparta.hanghaejwt.entity.User;
 import com.sparta.hanghaejwt.entity.UserRoleEnum;
 import com.sparta.hanghaejwt.jwt.JwtUtil;
 import com.sparta.hanghaejwt.repository.UserRepository;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +24,15 @@ public class UserService {
     private static final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
 
     // 회원 가입
+    // username 과 password 를 controller 에서 받아온 파라미터에서 추출해낸다.
+    // userRepository 에서 username 을 찾아와서
     @Transactional
     public UserResponseDto signup(SignupRequestDto signupRequestDto){
         String username = signupRequestDto.getUsername();
         String password = signupRequestDto.getPassword();
 
         // 회원 중복 확인
+        // Optional : 값이 null 이어도 NPE(NullPointException) 발생하지 않는다. 빈 객체는 empty() 로 받을 수 있다.
         Optional<User> found = userRepository.findByUsername(username);
         if(found.isPresent()) {  // username 이 이미 있는 경우
             throw new IllegalArgumentException("중복된 사용자가 존재합니다.");

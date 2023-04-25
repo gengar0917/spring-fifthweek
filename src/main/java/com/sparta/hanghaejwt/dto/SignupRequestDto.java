@@ -18,8 +18,8 @@ public class SignupRequestDto {
     private String username;
     @NotNull
     @Size(min = 8, max = 15)
-    @Pattern(regexp = "(?=.*[0-9])(?=.*[a-zA-Z]).{8,15}",
-    message = "비밀번호는 8~16자 영문 대 소문자, 숫자를 사용하세요.")
+    @Pattern(regexp = "(?=.*[0-9])(?=.*[,.!@/?#$%^&*+-])(?=.*[a-zA-Z]).{8,15}",
+    message = "비밀번호는 8~16자 영문 대 소문자, 특수문자, 그리고 숫자를 사용하세요.")
     private String password;
 
     private boolean admin = false;
