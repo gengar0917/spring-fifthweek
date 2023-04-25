@@ -115,11 +115,19 @@ public class BoardService {
                 () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
         );
 
-        // 사용자 이름이 같은 경우만 수정 가능
-        if (board.getUser().getUsername().equals(user.getUsername())) {
+        // 사용자 권한 확인하여 ADMIN 이면 아무 게시글이나 삭제 가능, USER 면 본인 글만 삭제 가능
+        UserRoleEnum userRoleEnum = user.getRole();
+
+        if (userRoleEnum == UserRoleEnum.ADMIN){
             board.update(requestDto);
+            boardRepository.save(board);
         } else {
-            throw new IllegalArgumentException("username 이 다릅니다");
+            if (claims.getSubject().equals(board.getUser().getUsername())){
+                board.update(requestDto);
+                boardRepository.save(board);
+            } else {
+                throw new IllegalArgumentException("username 이 다릅니다");
+            }
         }
         return new BoardResponseDto(board);
     }

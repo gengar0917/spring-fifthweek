@@ -39,15 +39,20 @@ public class UserService {
         }
 
         // 사용자 Role 확인
+
         UserRoleEnum role = UserRoleEnum.USER;
-        if (signupRequestDto.isAdmin()) {
-            if (!signupRequestDto.getAdminToken().equals(ADMIN_TOKEN)) {
-                throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
-            }
+
+        String role2 = String.valueOf(signupRequestDto.getAdminToken());
+
+        if(role2.equals(ADMIN_TOKEN)){
             role = UserRoleEnum.ADMIN;
+        }else if(role2.equals("null")){
+            role = UserRoleEnum.USER;
+        }else if (!signupRequestDto.getAdminToken().equals(ADMIN_TOKEN)) {
+            throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
         }
 
-        User user = new User(username, password, role);
+        User user = new User(username, password, role); //Admin이어도 role 값으로 user 받음
         userRepository.save(user);
 
         return UserResponseDto.setSuccess();
