@@ -1,9 +1,7 @@
 package com.sparta.hanghaejwt.controller;
 
 // 전역 예외 처리
-import com.sparta.hanghaejwt.dto.BoardRequestDto;
-import com.sparta.hanghaejwt.dto.BoardResponseDto;
-import com.sparta.hanghaejwt.dto.UserResponseDto;
+import com.sparta.hanghaejwt.dto.*;
 import com.sparta.hanghaejwt.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +36,7 @@ public class BoardController {
     // get 은 body 가 없기 때문에 RequestBody 사용하지 않는다.
     // list 를 불러오는 것이기 때문에 필요한 데이터가 없어서 파라미터가 필요없다.
     @GetMapping("/list")  // get 은 body 가 없다
-    public List<BoardResponseDto> getBoardList() { // 데이터 베이스에 저장 된 전체 게시물 전부다 가져오는 API
+    public List<BoardAndComment> getBoardList() { // 데이터 베이스에 저장 된 전체 게시물 전부다 가져오는 API
         return boardService.getBoardList();
     }
 
@@ -46,7 +44,7 @@ public class BoardController {
     // @PathVariable : URI 에서 가장 끝부분에 변수 같은 부분 처리해 준다.
     // id 를 파라미터로 받아서 비교하기
     @GetMapping("/{id}")  // http://localhost:8080/board/{id}
-    public BoardResponseDto getBoard(@PathVariable Long id) { // 똑같은 id 를 갖고 있는 것을 가져올 것
+    public BoardCommentResponseDto getBoard(@PathVariable Long id) { // 똑같은 id 를 갖고 있는 것을 가져올 것
         // 응답 보내기 : request Header 안에 들어 있는 Token 값 넣어 주기
         return boardService.getBoard(id);
     }

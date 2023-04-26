@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 public class MessageStatusResponseDto {
 
     private String msg;
+    private String status;
 
     // static 정적 메소드
     // 회원 가입 성공시 상태코드와 메세지 전달

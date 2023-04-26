@@ -22,10 +22,11 @@ public class Board extends Timestamped {
     // DB 가 자동으로 숫자를 generate
     // AUTO : 기본 설정 값, 방언에 따라 세가지 다른 전략을 자동으로 지정
     // 기본 키 제약 조건 : NULL 이 아니다. 유일하다. 변하면 안 된다.
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "comment_id")
+    private Long id;
     @Column(nullable = false)
     private String contents;
 
