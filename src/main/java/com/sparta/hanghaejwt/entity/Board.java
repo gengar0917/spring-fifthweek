@@ -45,12 +45,6 @@ public class Board extends Timestamped {
     private User user;
 
 
-//    @JsonIgnore  // 컨트롤러에서 리턴할 때 이 부분만 빼고 보내준다.
-//    // 또한 데이터 받아올 때에도 빼고 받아온다. -> 그래서 Dto 에도 password 필드 넣을 것
-
-//    @Column(nullable = false)
-//    private String username;
-
 
     // Board 의 파라미터가 있는 생성자 (리턴 타입이 없다)
     // User 의 username, password 를 받아오기 위해 사용
@@ -67,3 +61,7 @@ public class Board extends Timestamped {
         this.title = requestDto.getTitle();
     }
 }
+
+
+//    @JsonIgnore  // 컨트롤러에서 리턴할 때 이 부분만 빼고 보내준다.
+//    // 또한 데이터 받아올 때에도 빼고 받아온다. -> 그래서 Dto 에도 password 필드 넣을 것

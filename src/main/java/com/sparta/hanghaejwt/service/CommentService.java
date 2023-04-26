@@ -2,15 +2,15 @@ package com.sparta.hanghaejwt.service;
 
 import com.sparta.hanghaejwt.dto.CommentRequestDto;
 import com.sparta.hanghaejwt.dto.CommentResponseDto;
+import com.sparta.hanghaejwt.dto.MessageStatusResponseDto;
+import com.sparta.hanghaejwt.entity.Board;
 import com.sparta.hanghaejwt.entity.Comment;
 import com.sparta.hanghaejwt.entity.User;
-import com.sparta.hanghaejwt.jwt.JwtUtil;
+import com.sparta.hanghaejwt.entity.UserRoleEnum;
 import com.sparta.hanghaejwt.repository.CommentRepository;
-import com.sparta.hanghaejwt.repository.UserRepository;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.Jar;
-import org.json.HTTP;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,49 +20,63 @@ import javax.servlet.http.HttpServletRequest;
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
+    private final FindService findService;
     private final Comment comment;
-    private final JwtUtil jwtUtil;
 
     //댓글 생성
-    public CommentResponseDto createComment(Long board_id, CommentRequestDto commentRequestDto, HttpServletRequest request){
-        String token = jwtUtil.resolveToken(request);
-        Claims claims;
+    public CommentResponseDto createComment(Long board_id, CommentRequestDto commentRequestDto, HttpServletRequest request) {
 
-        // 토큰이 없는 경우
-        if (token == null){
-            throw new IllegalArgumentException("토큰 없음");
-        }
+        //토큰 검증 후 request 이용해 user 저장
+        User user = findService.findUser(request);
+//        선택한 게시글의 DB 저장 유무를 확인하기
+        Board board = findService.findBoard(board_id);
 
-        // 토큰이 있는 경우만
-        // 유효한 토큰인지 확인
-        if (jwtUtil.validateToken(token)) {
-            claims = jwtUtil.getUserInfoFromToken(token);
-        } else {
-            throw new IllegalArgumentException("Token Error");
-        }
+        //댓글 저장
+        Comment comment = new Comment(board, user, commentRequestDto);
+        commentRepository.save(comment);
 
-        // 토큰에서 가져온 사용자 정보를 이용하여 DB 조회하여 사용자 존재 유무 확인
-        User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
-        );
-        return new CommentResponseDto(commentRepository.save(comment));
+        return new CommentResponseDto(comment);
     }
 
     //댓글 수정 :)
-    public CommentResponseDto updateComment(Long board_id, CommentRequestDto commentRequestDto, HttpServletRequest request){
+    public CommentResponseDto updateComment(Long comment_id, CommentRequestDto commentRequestDto, HttpServletRequest request) {
+        // 토큰 검사
+        User user = findService.findUser(request);
+        // 댓글 존재여부 확인
+        Comment comment = findService.findComment(comment_id);
 
+        // 관리자인지 일반 유저인지 확인하기
+        if (user.getRole() == UserRoleEnum.USER) {
+            if (user.getUsername().equals(comment.getUser().getUsername())) {
+                comment.update(commentRequestDto);
+            } else {
+                MessageStatusResponseDto.setStatus("해당 댓글의 작성자가 아닙니다.", HttpStatus.BAD_REQUEST);
+//                new ResponseEntity<>("실패", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            comment.update(commentRequestDto);
+        }
+        return new CommentResponseDto(comment);
     }
+
 
     //댓글 삭제
-    public CommentResponseDto deleteComment(Long id, HttpServletRequest request){
+    public MessageStatusResponseDto deleteComment(Long comment_id, HttpServletRequest request) {
+        // 토큰 검사
+        User user = findService.findUser(request);
+        // 댓글 존재여부 확인
+        Comment comment = findService.findComment(comment_id);
+        // 관리자인지 일반 유저인지 확인하기
 
+        if (user.getRole() == UserRoleEnum.USER) {
+            if (user.getUsername().equals(comment.getUser().getUsername())) {
+                commentRepository.delete(comment);
+            } else {
+                throw new IllegalArgumentException("username 이 다릅니다");
+            }
+        } else {
+            commentRepository.delete(comment);
+        }
+        return new MessageStatusResponseDto("성공적으로 삭제되었습니다.", HttpStatus.OK);
     }
-
-    private Comment findComment(Long id) {
-        return commentRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("선택한 댓글이 없습니다.")
-        );
-    }
-
 }

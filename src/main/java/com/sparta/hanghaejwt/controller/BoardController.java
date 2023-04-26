@@ -63,7 +63,7 @@ public class BoardController {
     // 게시물 삭제
     // 삭제할 게시물의 id 와 유저 정보를 알아 내기 위하여 id 와 request 를 받는다.
     @DeleteMapping("/delete/{id}")
-    public UserResponseDto deleteBoard(@PathVariable Long id, HttpServletRequest request) {
+    public MessageStatusResponseDto deleteBoard(@PathVariable Long id, HttpServletRequest request) {
         return boardService.deleteBoard(id, request);
     }
 }

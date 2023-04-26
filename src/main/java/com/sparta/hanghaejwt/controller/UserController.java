@@ -2,7 +2,7 @@ package com.sparta.hanghaejwt.controller;
 
 import com.sparta.hanghaejwt.dto.LoginRequestDto;
 import com.sparta.hanghaejwt.dto.SignupRequestDto;
-import com.sparta.hanghaejwt.dto.UserResponseDto;
+import com.sparta.hanghaejwt.dto.MessageStatusResponseDto;
 import com.sparta.hanghaejwt.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +25,7 @@ public class UserController {
     // 요청에 password, username 이 필요하기 때문에 RequestBody 사용 + password 에 유효성검사해야해서 @Valid 사용
     // SignupRequestDto 에서 필요로 하는 것 : username, password, adminToken(없으면 일반유저)
     @PostMapping("/signup")
-    public UserResponseDto signup(@RequestBody @Valid SignupRequestDto signupRequestDto) {
+    public MessageStatusResponseDto signup(@RequestBody @Valid SignupRequestDto signupRequestDto) {
         return userService.signup(signupRequestDto);
 
         // 이 방식을 이용하면 메세지와 응답 코드 모두 전달 가능
@@ -36,7 +36,7 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public UserResponseDto login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response){
+    public MessageStatusResponseDto login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response){
         return userService.login(loginRequestDto, response);
     }
 }

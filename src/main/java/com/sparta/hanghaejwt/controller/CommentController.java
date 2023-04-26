@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
-@Controller
+@RestController
 @RequestMapping("/comment")
 public class CommentController {
 
@@ -27,9 +27,9 @@ public class CommentController {
         return commentService.updateComment(board_id, commentRequestDto, request);
     }
 
-    // 댓글 삭제
-    @DeleteMapping("/create/{board_id}")
-    public CommentResponseDto createComment(@PathVariable Long board_id, @RequestBody HttpServletRequest request){
-        return commentService.deleteComment(board_id, request);
+//     댓글 삭제
+    @DeleteMapping("/delete/{comment_id}")
+    public MessageStatusResponseDto createComment(@PathVariable Long comment_id, HttpServletRequest request){
+        return commentService.deleteComment(comment_id, request);
     }
 }
