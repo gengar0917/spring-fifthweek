@@ -4,7 +4,6 @@ import com.sparta.hanghaejwt.dto.MessageStatusResponseDto;
 import com.sparta.hanghaejwt.entity.Board;
 import com.sparta.hanghaejwt.entity.Comment;
 import com.sparta.hanghaejwt.entity.User;
-import com.sparta.hanghaejwt.entity.UserRoleEnum;
 import com.sparta.hanghaejwt.jwt.JwtUtil;
 import com.sparta.hanghaejwt.repository.BoardRepository;
 import com.sparta.hanghaejwt.repository.CommentRepository;
@@ -12,7 +11,9 @@ import com.sparta.hanghaejwt.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -34,7 +35,7 @@ public class FindService {
     }
 
 
-    //HttpServletRequest를 이용해 해당 user 찾기
+    //HttpServletRequest 를 이용해 해당 user 찾기
     //토큰 검증
     public User findUser(HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request);
@@ -50,11 +51,11 @@ public class FindService {
 
                 return user;
             } else {
-
-                throw new IllegalArgumentException("Token Error");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "토큰이 유효하지 않음");
+//                throw new IllegalArgumentException("Token Error");
             }
         }
-        throw new IllegalArgumentException("토큰 없음");
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "토큰 없음");
     }
 
     // 댓글 찾기
