@@ -1,5 +1,5 @@
-## [항해] 제출 과제 3  
-## with Gengar
+## [항해] 제출 과제 3  with Gengar  
+
 https://github.com/gengar0917  
 
 1. 회원 가입 API
@@ -60,10 +60,10 @@ https://github.com/gengar0917
   
 ## ERD 설계
   
-![erd설계](https://user-images.githubusercontent.com/122955367/233663415-a3ee3b65-3a73-4138-93dc-aa166f51bc0f.png)  
+![image](https://user-images.githubusercontent.com/122955367/234530285-d08bc6a2-4d4c-4cee-9134-78c918f54e64.png)  
 ## API 명세서 
   
-https://documenter.getpostman.com/view/26921017/2s93Y3vMEp#4b2717f9-46ae-4dee-92a9-2a5af806abef  
+https://documenter.getpostman.com/view/26921017/2s93Y3vMEp  
 ## 생각해보기
 
 1. JWT를 사용하여 인증/인가를 구현 했을 때의 장점은 무엇일까요?  
