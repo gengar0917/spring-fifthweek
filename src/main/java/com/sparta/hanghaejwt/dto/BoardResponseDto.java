@@ -14,9 +14,7 @@ public class BoardResponseDto implements BoardAndComment{
     private Long id;
     private String title;
     private String content;
-    //    @CreatedDate
     private LocalDateTime createdAt;
-    //    @LastModifiedDate
     private LocalDateTime modifiedAt;
 
     private String username;

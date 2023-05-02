@@ -12,8 +12,6 @@ public class CommentResponseDto implements BoardAndComment{
     private String text;
     private String writer;
 
-//    private Long board_id;
-
     public CommentResponseDto(Comment comment){
         this.comment_id = comment.getComment_id();
         this.text = comment.getText();
