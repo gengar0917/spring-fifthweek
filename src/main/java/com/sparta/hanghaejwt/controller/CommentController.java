@@ -7,6 +7,7 @@ import com.sparta.hanghaejwt.security.UserDetailsImpl;
 import com.sparta.hanghaejwt.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,5 +35,11 @@ public class CommentController {
     @DeleteMapping("/delete/{comment_id}")
     public MessageStatusResponseDto createComment(@PathVariable Long comment_id, @AuthenticationPrincipal UserDetailsImpl userDetails){
         return commentService.deleteComment(comment_id, userDetails.getUser());
+    }
+
+    // 좋아요 누르기
+    @PutMapping("/like/{comment-id}")
+    public MessageStatusResponseDto likeComment(@PathVariable(name = "comment-id") Long comment_id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return commentService.likeComment(comment_id, userDetails.getUser());
     }
 }
