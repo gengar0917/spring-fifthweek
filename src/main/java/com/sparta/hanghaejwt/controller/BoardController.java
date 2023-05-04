@@ -24,25 +24,31 @@ public class BoardController {
 
     // 게시물 전체 보기
     @GetMapping("/list")
-    public List<BoardAndComment> getBoardList() { // 데이터 베이스에 저장 된 전체 게시물 전부다 가져오는 API
+    public List<BoardResponseDto> getBoardList() { // 데이터 베이스에 저장 된 전체 게시물 전부다 가져오는 API
         return boardService.getBoardList();
     }
 
     // 게시물 하나만 보기
-    @GetMapping("/{id}")
-    public BoardCommentResponseDto getBoard(@PathVariable Long id) {
+    @GetMapping("/{board-id}")
+    public BoardResponseDto getBoard(@PathVariable(name = "board-id") Long id) {
         return boardService.getBoard(id);
     }
 
     // 게시물 수정
-    @PutMapping("/update/{id}")
-    public BoardResponseDto updateBoard(@PathVariable Long id, @RequestBody BoardRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    @PutMapping("/update/{board-id}")
+    public BoardResponseDto updateBoard(@PathVariable(name = "board-id") Long id, @RequestBody BoardRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return boardService.updateBoard(id, requestDto, userDetails.getUser());
     }
 
     // 게시물 삭제
-    @DeleteMapping("/delete/{id}")
-    public MessageStatusResponseDto deleteBoard(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    @DeleteMapping("/delete/{board-id}")
+    public MessageStatusResponseDto deleteBoard(@PathVariable(name = "board-id") Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return boardService.deleteBoard(id, userDetails.getUser());
+    }
+
+    //게시물 좋아요 누르기
+    @PutMapping("/like/{board-id}")
+    public MessageStatusResponseDto likeBoard(@PathVariable(name = "board-id") Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return boardService.likeBoard(id, userDetails.getUser());
     }
 }

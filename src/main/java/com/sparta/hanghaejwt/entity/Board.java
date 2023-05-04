@@ -2,6 +2,7 @@ package com.sparta.hanghaejwt.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sparta.hanghaejwt.dto.BoardRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ import java.util.List;
 public class Board extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "comment_id")
+    @Column(name = "board_id")
     private Long id;
     @Column(nullable = false)
     private String contents;
@@ -23,14 +24,17 @@ public class Board extends Timestamped {
     @Column(nullable = false)
     private String title;
 
+    @Column (name = "board_like")
+    private int boardLike = 0;
+
     @JsonIgnore
     @JoinColumn(name = "user_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     @OneToMany(mappedBy = "board", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-//    @OrderBy("id asc")
     @JsonBackReference
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private List<Comment> comments;
 
     public Board(BoardRequestDto requestDto, User user){
@@ -42,5 +46,9 @@ public class Board extends Timestamped {
     public void update(BoardRequestDto requestDto) {
         this.contents = requestDto.getContent();
         this.title = requestDto.getTitle();
+    }
+
+    public void updateLike(int isLike){
+        this.boardLike += isLike;
     }
 }
