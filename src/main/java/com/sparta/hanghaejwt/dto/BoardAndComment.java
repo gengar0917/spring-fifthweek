@@ -1,4 +1,4 @@
-package com.sparta.hanghaejwt.dto;
-
-public interface BoardAndComment {
-}
+//package com.sparta.hanghaejwt.dto;
+//
+//public interface BoardAndComment {
+//}
